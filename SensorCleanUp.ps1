@@ -20,24 +20,6 @@ function Uninstall-AATPSensor {
     }
 }
 
-function Remove-SensorFolder {
-    $sensorFolderPath = "C:\Program Files\Azure Advanced Threat Protection Sensor"
-    
-    if (Test-Path $sensorFolderPath) {
-        $confirmation = Read-Host "Found Sensor Folder at $sensorFolderPath. Do you want to delete it? (Y/N)"
-        if ($confirmation -eq "Y") {
-            try {
-                Remove-Item -Path $sensorFolderPath -Recurse -Force
-                Write-Host "Sensor folder deleted successfully." -ForegroundColor Green
-            } catch {
-                Write-Host "Failed to delete sensor folder. Error: $_" -ForegroundColor Red
-            }
-        }
-    } else {
-        Write-Host "Sensor Folder not found." -ForegroundColor Yellow
-    }
-}
-
 function Remove-AATPServices {
     $services = @("aatpsensor", "aatpsensorupdater")
 
@@ -86,14 +68,9 @@ function Remove-RegistryKeys {
         "HKLM:\SOFTWARE\Classes\Installer\Dependencies"
     )
     
-    $keyFound = $false
     foreach ($path in $registryPaths) {
         try {
             $keys = Get-ChildItem -Path $path | Where-Object { (Get-ItemProperty -Path $_.PsPath).DisplayName -eq "Azure Advanced Threat Protection Sensor" }
-            
-            if ($keys.Count -gt 0) {
-                $keyFound = $true
-            }
             
             foreach ($key in $keys) {
                 $confirmation = Read-Host "Found related registry key at $($key.PsPath). Do you want to delete it? (Y/N)"
@@ -106,15 +83,10 @@ function Remove-RegistryKeys {
             Write-Host "Error during removing registry keys: $_" -ForegroundColor Red
         }
     }
-
-    if (-not $keyFound) {
-        Write-Host "No relevant registry keys found for removal." -ForegroundColor Yellow
-    }
 }
 
 # Execute the functions
 Uninstall-AATPSensor
-Remove-SensorFolder
 Remove-AATPServices
 Rename-PackageCache
 Remove-RegistryKeys
