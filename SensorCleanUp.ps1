@@ -102,7 +102,6 @@ function Uninstall-AATPSensor {
     }
 }
 
-# ... [Other functions with added try-catch blocks as demonstrated above]
 
 # Call the functions
 Uninstall-AATPSensor
